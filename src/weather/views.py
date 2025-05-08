@@ -2,12 +2,16 @@ from django.shortcuts import render
 import requests
 from .models import City
 from .forms import CityForm
+from dotenv import dotenv_values
 
 # Create your views here.
+
+CONFIG_ENV = dotenv_values('.env')
 
 def index_view(request):
     api_url = 'https://api.openweathermap.org/data/2.5/weather?q={0}&appid={1}&units=imperial&lang=en'
 
+    print(CONFIG_ENV)
     if request.method == 'POST':
         form = CityForm(request.POST)
         form.save()
@@ -18,7 +22,7 @@ def index_view(request):
 
     for city in cities:
         city_name = city.name
-        api_key = 'a5d8a0047d42974aa80a382161a314e5' # personal API key
+        api_key = CONFIG_ENV['API_KEY']
         r = requests.get(api_url.format(city_name,api_key)).json() # convert json output requests.get to python dict
         city_weather = {
             'name':city_name,
