@@ -16,8 +16,9 @@ Including another URLconf
 """
 from django.urls import path
 
-from .views import index_view
+from .views import single_view, all_view
 app_name = 'weather'
 urlpatterns = [
-    path('',index_view, name='index')
+    path('',single_view, name='index'),
+    path('all/',all_view)
 ]

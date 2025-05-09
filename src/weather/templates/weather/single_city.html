@@ -1,0 +1,30 @@
+{% extends "weather/weather.html" %}
+
+{% block content %}
+
+<form action='/' method="POST">
+    {% csrf_token %}
+    <div class="field has-addons">
+        <div class="control is-expanded">
+            {{ form.name }}
+        </div>
+        <div class="control">
+            <button type="submit" class="button is-info">
+                Add City
+            </button>
+        </div>
+    </div>
+</form>
+
+<form action='all/' method="POST">
+    {% csrf_token %}
+    <div class="field has-addons">
+        <div class="control">
+            <button type="submit" class="button is-info">
+                View All Cities
+            </button>
+        </div>
+    </div>
+</form>
+
+{% endblock %}

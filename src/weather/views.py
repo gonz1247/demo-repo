@@ -7,14 +7,37 @@ from dotenv import dotenv_values
 # Create your views here.
 
 CONFIG_ENV = dotenv_values('.env')
+API_URL = 'https://api.openweathermap.org/data/2.5/weather?q={0}&appid={1}&units=imperial&lang=en'
 
-def index_view(request):
-    api_url = 'https://api.openweathermap.org/data/2.5/weather?q={0}&appid={1}&units=imperial&lang=en'
+def single_view(request):
 
-    print(CONFIG_ENV)
+    weather_data = list()
+
     if request.method == 'POST':
         form = CityForm(request.POST)
-        form.save()
+        if form.is_valid():
+            city = form.save()
+            city_name = city.name
+            api_key = CONFIG_ENV['API_KEY']
+            r = requests.get(
+                API_URL.format(city_name, api_key)).json()  # convert json output requests.get to python dict
+            city_weather = {
+                'name': city_name,
+                'temp': r['main']['temp'],
+                'description': r['weather'][0]['description'],
+                'icon': r['weather'][0]['icon'],
+            }
+            weather_data.append(city_weather)
+
+    form = CityForm()
+
+    context = {
+        'weather_data':weather_data,
+        'form':form,
+    }
+    return render(request, 'weather/single_city.html',context)
+
+def all_view(request):
 
     form = CityForm()
     cities = City.objects.all()
@@ -23,7 +46,7 @@ def index_view(request):
     for city in cities:
         city_name = city.name
         api_key = CONFIG_ENV['API_KEY']
-        r = requests.get(api_url.format(city_name,api_key)).json() # convert json output requests.get to python dict
+        r = requests.get(API_URL.format(city_name,api_key)).json() # convert json output requests.get to python dict
         city_weather = {
             'name':city_name,
             'temp':r['main']['temp'],
@@ -32,9 +55,8 @@ def index_view(request):
         }
         weather_data.append(city_weather)
 
-    print(weather_data)
     context = {
         'weather_data':weather_data,
         'form':form,
     }
-    return render(request, 'weather/weather.html',context)
+    return render(request, 'weather/all_cities.html',context)
