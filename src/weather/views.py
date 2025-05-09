@@ -18,16 +18,22 @@ def single_view(request):
         if form.is_valid():
             city = form.save()
             city_name = city.name
+            if not city.unique_city_name():
+                city.delete()
             api_key = CONFIG_ENV['API_KEY']
             r = requests.get(
                 API_URL.format(city_name, api_key)).json()  # convert json output requests.get to python dict
-            city_weather = {
-                'name': city_name,
-                'temp': r['main']['temp'],
-                'description': r['weather'][0]['description'],
-                'icon': r['weather'][0]['icon'],
-            }
-            weather_data.append(city_weather)
+            # Valid form but need to check if get valid response from API
+            if r['cod'] == '404':
+                city.delete()
+            else:
+                city_weather = {
+                    'name': city_name,
+                    'temp': r['main']['temp'],
+                    'description': r['weather'][0]['description'],
+                    'icon': r['weather'][0]['icon'],
+                }
+                weather_data.append(city_weather)
 
     form = CityForm()
 

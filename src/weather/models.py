@@ -12,6 +12,12 @@ class City(models.Model):
     def __str__(self):
         return self.name
 
-
+    def unique_city_name(self):
+        city_names = City.objects.exclude(pk=self.pk).values_list('name', flat=True)
+        new_city_name = self.name
+        if new_city_name in city_names:
+            return False
+        else:
+            return True
 
 
